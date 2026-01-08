@@ -2,6 +2,8 @@
 
 Procedural 3D snowflake generator rendered in ASCII, running in the browser.
 
+[**Live Demo**](https://lordprinz.github.io/snowflake-ascii/dist/)
+
 ## How to Run
 
 ### Requirements (Optional)
