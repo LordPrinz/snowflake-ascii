@@ -1,0 +1,98 @@
+:root {
+    --color-bg: #000;
+    --color-text: #fff;
+    --color-snow: #aaddff;
+    --color-glow: rgba(170, 221, 255, 0.5);
+    --color-text-secondary: #666;
+
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-ui: sans-serif;
+
+    --font-size-ui: 14px;
+    --spacing-sm: 5px;
+    --spacing-md: 10px;
+    --spacing-lg: 20px;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#container {
+    text-align: center;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+#ascii-output {
+    margin: 0;
+    padding: 0;
+    white-space: pre;
+    color: var(--color-snow);
+    text-shadow: 0 0 5px var(--color-glow);
+    cursor: pointer;
+    user-select: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#controls {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    width: 100%;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-ui);
+    font-family: var(--font-ui);
+    z-index: 10;
+}
+
+@media print {
+    body, html, #container {
+        background-color: var(--color-bg) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    #ascii-output {
+        color: var(--color-snow) !important;
+        filter: none !important;
+    }
+
+    #controls {
+        display: none !important;
+    }
+}
+
+.control-group {
+    margin-top: var(--spacing-md);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    pointer-events: auto;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+input[type=range] {
+    cursor: pointer;
+}
