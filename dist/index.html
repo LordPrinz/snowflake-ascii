@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D ASCII Snowflake</title>
+    <meta author="LordPrinz">
+    <meta description="Procedural 3D ASCII Snowflake Generator">
+    <style>
+:root {
+    --color-bg: #000;
+    --color-text: #fff;
+    --color-snow: #aaddff;
+    --color-glow: rgba(170, 221, 255, 0.5);
+    --color-text-secondary: #666;
+
+    --font-mono: 'Courier New', Courier, monospace;
+    --font-ui: sans-serif;
+
+    --font-size-ui: 14px;
+    --spacing-sm: 5px;
+    --spacing-md: 10px;
+    --spacing-lg: 20px;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#container {
+    text-align: center;
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+#ascii-output {
+    margin: 0;
+    padding: 0;
+    white-space: pre;
+    color: var(--color-snow);
+    text-shadow: 0 0 5px var(--color-glow);
+    cursor: pointer;
+    user-select: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#controls {
+    position: absolute;
+    bottom: var(--spacing-lg);
+    width: 100%;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-ui);
+    font-family: var(--font-ui);
+    z-index: 10;
+}
+
+@media print {
+    body, html, #container {
+        background-color: var(--color-bg) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+    
+    #ascii-output {
+        color: var(--color-snow) !important;
+        filter: none !important;
+    }
+
+    #controls {
+        display: none !important;
+    }
+}
+
+.control-group {
+    margin-top: var(--spacing-md);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    pointer-events: auto;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    cursor: pointer;
+}
+
+input[type=range] {
+    cursor: pointer;
+}
+
+</style>
+</head>
+<body>
+    <div id="container">
+        <pre id="ascii-output"></pre>
+        <div id="controls">
+            <p>Press SPACE to regenerate. Drag to rotate. Press C to copy.</p>
+            <div class="control-group">
+                <label>Density: <input type="range" id="density-slider" min="0.5" max="2" step="0.1" value="2"></label>
+                <label>Size: <input type="range" id="size-slider" min="0" max="63" step="1" value="45"></label>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+class c{x;y;z;constructor(t=0,s=0,o=0){this.x=t;this.y=s;this.z=o}add(t){return new c(this.x+t.x,this.y+t.y,this.z+t.z)}sub(t){return new c(this.x-t.x,this.y-t.y,this.z-t.z)}scale(t){return new c(this.x*t,this.y*t,this.z*t)}dot(t){return this.x*t.x+this.y*t.y+this.z*t.z}cross(t){return new c(this.y*t.z-this.z*t.y,this.z*t.x-this.x*t.z,this.x*t.y-this.y*t.x)}length(){return Math.sqrt(this.dot(this))}normalize(){let t=this.length();return t===0?new c:this.scale(1/t)}clone(){return new c(this.x,this.y,this.z)}rotateZ(t){let s=Math.cos(t),o=Math.sin(t);return new c(this.x*s-this.y*o,this.x*o+this.y*s,this.z)}static fromObject(t){return new c(t.x,t.y,t.z)}}class p{elements;constructor(t){this.elements=t||[1,0,0,0,1,0,0,0,1]}static rotationX(t){let s=Math.cos(t),o=Math.sin(t);return new p([1,0,0,0,s,-o,0,o,s])}static rotationY(t){let s=Math.cos(t),o=Math.sin(t);return new p([s,0,o,0,1,0,-o,0,s])}static rotationZ(t){let s=Math.cos(t),o=Math.sin(t);return new p([s,-o,0,o,s,0,0,0,1])}multiply(t){let s=this.elements,o=t.elements,n=[,,,,,,,,,];return n[0]=s[0]*o[0]+s[1]*o[3]+s[2]*o[6],n[1]=s[0]*o[1]+s[1]*o[4]+s[2]*o[7],n[2]=s[0]*o[2]+s[1]*o[5]+s[2]*o[8],n[3]=s[3]*o[0]+s[4]*o[3]+s[5]*o[6],n[4]=s[3]*o[1]+s[4]*o[4]+s[5]*o[7],n[5]=s[3]*o[2]+s[4]*o[5]+s[5]*o[8],n[6]=s[6]*o[0]+s[7]*o[3]+s[8]*o[6],n[7]=s[6]*o[1]+s[7]*o[4]+s[8]*o[7],n[8]=s[6]*o[2]+s[7]*o[5]+s[8]*o[8],new p(n)}multiplyVector(t){let s=this.elements,o=t.x,n=t.y,e=t.z;return new c(s[0]*o+s[1]*n+s[2]*e,s[3]*o+s[4]*n+s[5]*e,s[6]*o+s[7]*n+s[8]*e)}}class d{element;width=80;height=40;zoom=15;chars=".,-~:;=!*#$@";constructor(t,s=80,o=40){this.element=document.getElementById(t),this.setSize(s,o)}setSize(t,s){this.width=Math.max(1,Math.floor(t||80)),this.height=Math.max(1,Math.floor(s||40))}setZoom(t){this.zoom=t}render(t,s,o){if(!this.element||!this.width||!this.height)return;let n=Math.floor(this.width*this.height);if(Number.isNaN(n)||n<=0)return;let e=Array(n).fill(0),h=Array(n).fill(" "),r=Math.min(this.width,this.height)*0.6,i=this.zoom||15,m=p.rotationX(s),l=p.rotationY(o).multiply(m),u=new c(0,0.707,-0.707).normalize();for(let y of t){let M=l.multiplyVector(y.position),N=M.z+i;if(N<=0)continue;let w=1/N,x=Math.floor(this.width/2+r*2*w*M.x),P=Math.floor(this.height/2-r*w*M.y);if(x>=0&&x<this.width&&P>=0&&P<this.height){let E=x+P*this.width;if(w>(e[E]??0)){e[E]=w;let D=l.multiplyVector(y.normal).dot(u);if(D>0){let T=Math.floor(D*(this.chars.length-1));h[E]=this.chars[Math.max(0,Math.min(this.chars.length-1,T))]||" "}}}}let b="";for(let y=0;y<this.height;y++){for(let M=0;M<this.width;M++)b+=h[M+y*this.width];b+=`
+`}this.element.textContent=b}}var L={PERFECT:{branchProb:0.85,subBranchDecay:0.55,angleVariance:0,width:0.35,density:0.25,maxDepth:2,branchAngle:Math.PI/3,lengthMult:1.1,startOffset:0.2,thickness:0.25},PERFECT_3D:{branchProb:0.7,subBranchDecay:0.55,angleVariance:0,width:0.3,density:0.4,maxDepth:2,branchAngle:Math.PI/3,lengthMult:1.1,startOffset:0.3,thickness:0.4,volumeType:"SPHERE"},DENDRITE_3D:{branchProb:0.6,subBranchDecay:0.5,angleVariance:0.05,width:0.3,density:0.4,maxDepth:3,branchAngle:Math.PI/3,lengthMult:1,startOffset:0.3,thickness:0.35,volumeType:"SPHERE"},DENDRITE:{branchProb:0.6,subBranchDecay:0.55,angleVariance:0.05,width:0.3,density:0.3,maxDepth:3,branchAngle:Math.PI/3,lengthMult:1,startOffset:0.25,thickness:0.15},PLATE:{branchProb:0.1,subBranchDecay:0.9,angleVariance:0,width:0.3,density:0.3,maxDepth:2,branchAngle:Math.PI/3,lengthMult:0.8,startOffset:0.2,thickness:0.1},STAR:{branchProb:0.05,subBranchDecay:0.1,angleVariance:0,width:0.35,density:0.3,maxDepth:1,branchAngle:Math.PI/3,lengthMult:0.9,startOffset:0.1,thickness:0.2}},z=["PERFECT","PERFECT","PERFECT_3D","PERFECT_3D","DENDRITE_3D","DENDRITE_3D","DENDRITE_3D","DENDRITE","STAR","PLATE"];class A{vertices=[];style={};random(t){let s=Math.sin(t)*1e4;return s-Math.floor(s)}generate(t=Math.random()*1000){this.vertices=[];let s=t,o=z[Math.floor(this.random(s++)*z.length)];this.style=L[o];let e=(6+this.random(s++)*4)*this.style.lengthMult;if(this.style.hasCenterHex)this.drawHexagon(2.5,this.style.width*0.8,this.style.density,this.style.thickness);let h=[];this.generateBranch(h,new c(0,0,0),new c(0,1,0),e,this.style.width,0,s);for(let a=0;a<6;a++){let r=Math.PI/3*a;for(let i of h)this.vertices.push({position:i.position.rotateZ(r),normal:i.normal.rotateZ(r)})}return this.vertices}generateBranch(t,s,o,n,e,h,a){if(n<0.4||h>this.style.maxDepth)return;let r=a,i=s.add(o.scale(n));if(this.addSegment(t,s,i,e,e*0.4,this.style.density,this.style.thickness),h<this.style.maxDepth){let m=Math.floor(n*1.5),f=h===0?Math.floor(m*(this.style.startOffset||0)):1;for(let l=f;l<m;l++)if(this.random(r++)<this.style.branchProb){let u=l/m,b=e*(1-u*0.6),y=s.add(o.scale(n*u)),M=this.random(r++)>0.5?1:-1,w=h===0&&this.random(r++)>0.1||this.random(r++)>0.4,x=(P)=>{let E=this.style.branchAngle*P,O=(this.random(r++)-0.5)*this.style.angleVariance,D=E+O,T=o.rotateZ(D),q=n*this.style.subBranchDecay*(0.8+this.random(r++)*0.4),$=b*0.7;this.generateBranch(t,y,T,q,$,h+1,r)};if(x(M),w)x(-M)}}}addSegment(t,s,o,n,e,h,a){let r=o.sub(s),i=r.length(),m=Math.floor(i/h);for(let f=0;f<=m;f++){let l=f/m,u=s.add(r.scale(l)),b=n+(e-n)*l;this.addVolume(t,u,b,a)}}drawHexagon(t,s,o,n){for(let e=0;e<6;e++){let h=Math.PI/3*e,a=new c(0,t,0),r=new c(Math.sin(h)*t,Math.cos(h)*t,0),i=Math.PI/3*((e+1)%6),m=new c(Math.sin(i)*t,Math.cos(i)*t,0);this.addSegment(this.vertices,r,m,s,s,o,n)}}addVolume(t,s,o,n){if(this.style.volumeType==="SPHERE")for(let a=0;a<6;a++){let r=Math.PI*2*a/6;for(let i=0;i<6;i++){let m=Math.PI*i/6,f=Math.sin(m)*Math.cos(r),l=Math.sin(m)*Math.sin(r),u=Math.cos(m),b=new c(f,l,u),y=b.scale(n||0.3);t.push({position:s.add(y),normal:b})}}else{let e=(n||0.1)/2,h=this.style.density||0.3,a=Math.max(1,Math.floor((n||0.1)/h)),r=6;for(let i=0;i<6;i++){let m=Math.PI*2*i/6,f=Math.cos(m)*o,l=Math.sin(m)*o;for(let u=0;u<=a;u++){let b=u/a,y=s.z-e+(n||0.1)*b;t.push({position:new c(s.x+f,s.y+l,y),normal:new c(f/o,l/o,0)})}}t.push({position:new c(s.x,s.y,s.z+e),normal:new c(0,0,1)}),t.push({position:new c(s.x,s.y,s.z-e),normal:new c(0,0,-1)})}}}async function K(t,s){try{if(await navigator.clipboard.writeText(t),s)s();else console.log("Copied to clipboard!")}catch(o){console.error("Failed to copy: ",o)}}function Z(t){let o=t.split(`
+`).map((r)=>r.trimEnd()),n=0;while(n<o.length&&o[n].trim()==="")n++;let e=o.length-1;while(e>=0&&o[e].trim()==="")e--;if(n>e)return"";let h=o.slice(n,e+1),a=1/0;for(let r of h)if(r.trim().length>0){let i=r.search(/\S/);if(i!==-1&&i<a)a=i}if(a!==1/0&&a>0){for(let r=0;r<h.length;r++)if(h[r].length>=a)h[r]=h[r].slice(a)}return h.join(`
+`)}function H(t,s="'Courier New', Courier, monospace"){let o=document.createElement("span");o.style.fontFamily=s,o.style.fontSize=`${t}px`,o.style.lineHeight=`${t}px`,o.style.visibility="hidden",o.style.position="absolute",o.textContent="M".repeat(100),document.body.appendChild(o);let n=o.offsetWidth/100,e=o.offsetHeight;return document.body.removeChild(o),{width:n,height:e}}var V=new d("ascii-output"),J=new A,F=[],W=0,k=0,g=!1,I=0,v=0,R=1.7;function Y(){F=J.generate()}function _(){let s=8/R,{width:o,height:n}=H(s),e=document.getElementById("ascii-output");if(e)e.style.fontSize=`${s}px`,e.style.lineHeight=`${n||s}px`;let h=Math.floor(window.innerWidth/o)-1,a=Math.floor(window.innerHeight/(n||s))-1;V.setSize(h,a)}function j(){if(!g)k+=0.01;V.render(F,W,k),requestAnimationFrame(j)}document.addEventListener("keydown",(t)=>{if(t.code==="Space")Y();if(t.code==="KeyC"){let s=document.getElementById("ascii-output")?.textContent;if(!s)return;let o=Z(s);K(o,()=>{let e=document.getElementById("controls")?.querySelector("p");if(e){let h=e.textContent;e.textContent="Copied to clipboard!",setTimeout(()=>{if(e)e.textContent=h},2000)}})}});var C=document.getElementById("ascii-output");if(C)C.addEventListener("mousedown",(t)=>{g=!0,I=t.clientX,v=t.clientY}),window.addEventListener("mouseup",()=>g=!1),window.addEventListener("mousemove",(t)=>{if(g){let s=t.clientX-I,o=t.clientY-v;k-=s*0.01,W-=o*0.01,I=t.clientX,v=t.clientY}});var S=document.getElementById("density-slider"),B=document.getElementById("size-slider");if(S)R=parseFloat(S.value)||1.7,S.addEventListener("input",(t)=>{R=parseFloat(t.target.value)||1,_()});if(B)V.setZoom(70-parseFloat(B.value)),B.addEventListener("input",(t)=>{V.setZoom(70-parseFloat(t.target.value))});window.addEventListener("load",()=>{_(),Y(),requestAnimationFrame(j)});window.addEventListener("resize",_);
+
+</script>
+</body>
+</html>
