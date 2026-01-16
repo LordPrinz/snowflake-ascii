@@ -37,9 +37,8 @@ function updateSize(): void {
 
 function animate(): void {
     if (!isDragging) {
-        const autoRotSpeed = 0.01; // Moderate speed
-        // rotX += autoRotSpeed; // Disable tumbling
-        rotY += autoRotSpeed; // Only spin around Y axis
+        const autoRotSpeed = 0.01;
+        rotY += autoRotSpeed;
     }
     
     renderer.render(mesh, rotX, rotY);
